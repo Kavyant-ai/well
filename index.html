@@ -93,42 +93,1176 @@
 
       generateBtn.addEventListener("click", async () => {
         const userInput = inputField.value.trim();
-        if (!userInput) return;
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WivX AI Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+      html{
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
 
-        chatHistory += `User: ${userInput}\n\nAI:`;
-        output.innerText = chatHistory + "\nWivX is typing...";
+    :root {
+      --primary-color: #7857ff;
+      --primary-dark: #6041e0;
+      --primary-light: #e9e3ff;
+      --secondary-color: #1cc8ee;
+      --text-color: #2d3748;
+      --text-secondary: #718096;
+      --bg-color: #f8fafc;
+      --bg-secondary: #ffffff;
+      --border-radius-sm: 8px;
+      --border-radius-md: 12px;
+      --border-radius-lg: 16px;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+      --transition: all 0.2s ease;
+      --border-color: #e2e8f0;
+      --user-message-bg: #f0f4ff;
+      --ai-message-bg: #ffffff;
+    }
 
-        try {
-          const result = await generator(chatHistory, {
-            max_new_tokens: 120,
-            temperature: 0.65,         
-            top_k: 40,                
-            repetition_penalty: 1.25,
-            stop: ["User:"]
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: radial-gradient(circle at top right, #f0f7ff, #f9fafc);
+      color: var(--text-color);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      height: 85vh;
+      min-height: 500px;
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-lg);
+      background: var(--bg-secondary);
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: #232333;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .app-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+
+    .app-logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(120, 87, 255, 0.3);
+    }
+
+    .app-logo::before {
+      content: 'W';
+      font-weight: 700;
+      color: white;
+      font-size: 18px;
+    }
+
+    .new-chat-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      padding: 0.6rem 1rem;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      font-weight: 500;
+      transition: var(--transition);
+      margin: 1rem;
+    }
+
+    .new-chat-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .new-chat-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .chat-history {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .history-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.8);
+      border-radius: var(--border-radius-sm);
+      margin: 0.2rem 0.7rem;
+      transition: var(--transition);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .history-item.active {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .history-item svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.7;
+    }
+
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-color);
+    }
+
+    .chat-header {
+      padding: 1rem 1.5rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+
+    .menu-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      scroll-behavior: smooth;
+    }
+
+    .message-group {
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      max-width: 88%;
+      padding: 1rem;
+      border-radius: var(--border-radius-md);
+      margin-bottom: 0.8rem;
+      animation: fadeIn 0.3s ease;
+      line-height: 1.5;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background: var(--user-message-bg);
+      color: var(--text-color);
+      border-bottom-right-radius: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ai-message {
+      align-self: flex-start;
+      background: var(--ai-message-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      border-bottom-left-radius: 0;
+      box-shadow: var(--shadow-sm);
+
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .user-meta {
+      justify-content: flex-end;
+      margin-right: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .ai-meta {
+      margin-left: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--secondary-color);
+    }
+
+    .ai-meta img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+
+    .message-content {
+      white-space: pre-wrap;
+      font-size: 0.95rem;
+    }
+
+    .input-area {
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .input-container {
+      display: flex;
+      align-items: flex-end;
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .input-container:focus-within {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(120, 87, 255, 0.2);
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 24px;
+      max-height: 150px;
+      padding: 0.8rem 1rem;
+      border: none;
+      background: transparent;
+      resize: none;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-color);
+      outline: none;
+      line-height: 1.5;
+    }
+
+    .send-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-md);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      margin: 0.5rem;
+    }
+
+    .send-btn:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .loading-indicator {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      height: 24px;
+    }
+
+    .loading-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      display: inline-block;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .loading-dot:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    .loading-dot:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+
+    @keyframes bounce {
+      0%, 80%, 100% {
+        transform: scale(0);
+      }
+      40% {
+        transform: scale(1);
+      }
+    }
+
+    .model-info {
+      margin-top: 0.8rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .clear-history {
+      margin-top: auto;
+      padding: 0.8rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    .clear-history:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .empty-state-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--primary-light);
+      color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state-icon svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .empty-state h3 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      max-width: 400px;
+      margin-bottom: 1.5rem;
+      color: var(--text-secondary);
+    }
+
+    .start-chat-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--border-radius-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .start-chat-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 900px) {
+      .app-container {
+        height: 90vh;
+        border-radius: var(--border-radius-md);
+      }
+
+      .sidebar {
+        position: absolute;
+        height: 100%;
+        z-index: 10;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .menu-btn {
+        display: block;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 0;
+      }
+
+      .app-container {
+        height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text-color: #e2e8f0;
+        --text-secondary: #a0aec0;
+        --bg-color: #1a202c;
+        --bg-secondary: #2d3748;
+        --border-color: #4a5568;
+        --user-message-bg: #3a437a;
+        --ai-message-bg: #2d3748;
+      }
+
+      body {
+        background: radial-gradient(circle at top right, #232333, #1a1a2e);
+      }
+
+      .sidebar {
+        background: #151525;
+      }
+
+      .input-container {
+        background: #2d3748;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="app-title">
+          <div class="app-logo"></div>
+          <span>WivX 0.3</span>
+        </div>
+      </div>
+      <button class="new-chat-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        New Chat
+      </button>
+      <div class="chat-history" id="chatHistory">
+        <!-- Chat history items will be populated here -->
+      </div>
+      <button class="clear-history" id="clearHistory">Clear all chats</button>
+    </div>
+
+    <div class="chat-main">
+      <div class="chat-header">
+        <div class="chat-title" id="currentChatTitle">New Chat</div>
+        <div class="header-actions">
+          <button class="menu-btn" id="menuToggle">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-container" id="chatContainer">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+          </div>
+          <h3>Start a new conversation</h3>
+          <p>WivX uses WebGPU to run GPT-2 in your browser. Your conversations are stored locally for privacy.</p>
+          <button class="start-chat-btn" id="startChat">Start Chatting</button>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-container">
+          <textarea id="inputText" placeholder="Type a message..." rows="1"></textarea>
+          <button id="generateBtn" class="send-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </div>
+        <div class="model-info">Running GPT-2 in your browser - Powered by WebGPU</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.10.0';
+
+    const chatContainer = document.getElementById("chatContainer");
+    const inputField = document.getElementById("inputText");
+    const generateBtn = document.getElementById("generateBtn");
+    const newChatBtn = document.querySelector(".new-chat-btn");
+    const emptyState = document.getElementById("emptyState");
+    const startChatBtn = document.getElementById("startChat");
+    const chatHistoryContainer = document.getElementById("chatHistory");
+    const clearHistoryBtn = document.getElementById("clearHistory");
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.querySelector(".sidebar");
+    const currentChatTitle = document.getElementById("currentChatTitle");
+
+    let db;
+    let currentChatId = null;
+
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open("WivXChatDB", 1);
+
+        request.onerror = (event) => {
+          console.error("IndexedDB error:", event.target.error);
+          reject("Could not open database");
+        };
+
+        request.onsuccess = (event) => {
+          db = event.target.result;
+          resolve(db);
+        };
+
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+
+          const chatsStore = db.createObjectStore("chats", { keyPath: "id", autoIncrement: true });
+          chatsStore.createIndex("timestamp", "timestamp", { unique: false });
+
+          const messagesStore = db.createObjectStore("messages", { keyPath: "id", autoIncrement: true });
+          messagesStore.createIndex("chatId", "chatId", { unique: false });
+          messagesStore.createIndex("timestamp", "timestamp", { unique: false });
+        };
+      });
+    }
+
+    async function createNewChat() {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["chats"], "readwrite");
+        const chatsStore = transaction.objectStore("chats");
+
+        const newChat = {
+          title: "New Chat",
+          timestamp: Date.now(),
+          lastMessage: ""
+        };
+
+        const request = chatsStore.add(newChat);
+
+        request.onsuccess = (event) => {
+          const chatId = event.target.result;
+          resolve(chatId);
+        };
+
+        request.onerror = (event) => {
+          console.error("Error creating chat:", event.target.error);
+          reject("Could not create chat");
+        };
+      });
+    }
+
+    async function getAllChats() {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["chats"], "readonly");
+        const chatsStore = transaction.objectStore("chats");
+        const index = chatsStore.index("timestamp");
+
+        const request = index.openCursor(null, "prev"); 
+        const chats = [];
+
+        request.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            chats.push(cursor.value);
+            cursor.continue();
+          } else {
+            resolve(chats);
+          }
+        };
+
+        request.onerror = (event) => {
+          console.error("Error getting chats:", event.target.error);
+          reject("Could not get chats");
+        };
+      });
+    }
+
+    async function updateChatTitle(chatId, title) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["chats"], "readwrite");
+        const chatsStore = transaction.objectStore("chats");
+
+        const request = chatsStore.get(chatId);
+
+        request.onsuccess = (event) => {
+          const chat = event.target.result;
+          if (chat) {
+            chat.title = title;
+            chat.timestamp = Date.now();
+
+            const updateRequest = chatsStore.put(chat);
+            updateRequest.onsuccess = () => {
+              resolve();
+            };
+            updateRequest.onerror = (event) => {
+              reject("Could not update chat title");
+            };
+          } else {
+            reject("Chat not found");
+          }
+        };
+
+        request.onerror = (event) => {
+          console.error("Error getting chat:", event.target.error);
+          reject("Could not get chat");
+        };
+      });
+    }
+
+    async function updateChatLastMessage(chatId, lastMessage) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["chats"], "readwrite");
+        const chatsStore = transaction.objectStore("chats");
+
+        const request = chatsStore.get(chatId);
+
+        request.onsuccess = (event) => {
+          const chat = event.target.result;
+          if (chat) {
+            chat.lastMessage = lastMessage;
+            chat.timestamp = Date.now();
+
+            const updateRequest = chatsStore.put(chat);
+            updateRequest.onsuccess = () => {
+              resolve();
+            };
+            updateRequest.onerror = (event) => {
+              reject("Could not update chat last message");
+            };
+          } else {
+            reject("Chat not found");
+          }
+        };
+
+        request.onerror = (event) => {
+          console.error("Error getting chat:", event.target.error);
+          reject("Could not get chat");
+        };
+      });
+    }
+
+    async function addMessage(chatId, role, content) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["messages"], "readwrite");
+        const messagesStore = transaction.objectStore("messages");
+
+        const newMessage = {
+          chatId,
+          role,
+          content,
+          timestamp: Date.now()
+        };
+
+        const request = messagesStore.add(newMessage);
+
+        request.onsuccess = (event) => {
+          const messageId = event.target.result;
+          resolve(messageId);
+        };
+
+        request.onerror = (event) => {
+          console.error("Error adding message:", event.target.error);
+          reject("Could not add message");
+        };
+      });
+    }
+
+    async function getChatMessages(chatId) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["messages"], "readonly");
+        const messagesStore = transaction.objectStore("messages");
+        const index = messagesStore.index("chatId");
+
+        const request = index.getAll(chatId);
+
+        request.onsuccess = (event) => {
+          const messages = event.target.result;
+
+          messages.sort((a, b) => a.timestamp - b.timestamp);
+          resolve(messages);
+        };
+
+        request.onerror = (event) => {
+          console.error("Error getting messages:", event.target.error);
+          reject("Could not get messages");
+        };
+      });
+    }
+
+    async function clearAllChats() {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["chats", "messages"], "readwrite");
+        const chatsStore = transaction.objectStore("chats");
+        const messagesStore = transaction.objectStore("messages");
+
+        const clearChatsRequest = chatsStore.clear();
+        const clearMessagesRequest = messagesStore.clear();
+
+        clearChatsRequest.onsuccess = () => {
+          clearMessagesRequest.onsuccess = () => {
+            resolve();
+          };
+          clearMessagesRequest.onerror = (event) => {
+            reject("Could not clear messages");
+          };
+        };
+
+        clearChatsRequest.onerror = (event) => {
+          console.error("Error clearing chats:", event.target.error);
+          reject("Could not clear chats");
+        };
+      });
+    }
+
+    async function renderChatHistory() {
+      try {
+        const chats = await getAllChats();
+        chatHistoryContainer.innerHTML = '';
+
+        if (chats.length === 0) {
+          return;
+        }
+
+        chats.forEach(chat => {
+          const historyItem = document.createElement('div');
+          historyItem.className = 'history-item';
+          if (chat.id === currentChatId) {
+            historyItem.classList.add('active');
+          }
+          historyItem.dataset.id = chat.id;
+
+          historyItem.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            ${chat.title}
+          `;
+
+          historyItem.addEventListener('click', () => {
+            loadChat(chat.id);
           });
 
-          const rawResponse = result[0].generated_text.replace(chatHistory, '').split("User:")[0].trim();
-          const cleanResponse = rawResponse.replace(/\s+/g, ' ').trim();
+          chatHistoryContainer.appendChild(historyItem);
+        });
+      } catch (error) {
+        console.error("Error rendering chat history:", error);
+      }
+    }
 
-          let fullDisplay = chatHistory;
-          output.innerText = fullDisplay;
+    async function loadChat(chatId) {
+      try {
+        currentChatId = chatId;
 
-          for (let i = 0; i < cleanResponse.length; i++) {
-            fullDisplay += cleanResponse[i];
-            output.innerText = fullDisplay + "";
-            output.scrollTop = output.scrollHeight;
-            await new Promise(res => setTimeout(res, 20));
+        const transaction = db.transaction(["chats"], "readonly");
+        const chatsStore = transaction.objectStore("chats");
+        const request = chatsStore.get(chatId);
+
+        request.onsuccess = async (event) => {
+          const chat = event.target.result;
+          currentChatTitle.textContent = chat.title;
+
+          const messages = await getChatMessages(chatId);
+
+          chatContainer.innerHTML = '';
+          if (messages.length === 0) {
+            showEmptyState();
+          } else {
+            hideEmptyState();
+            messages.forEach(message => {
+              renderMessage(message.role, message.content);
+            });
+            chatContainer.scrollTop = chatContainer.scrollHeight;
           }
 
-          chatHistory += ` ${cleanResponse}\n`;
-          output.innerText = chatHistory+`\n`;
-          output.scrollTop = output.scrollHeight;
-          inputField.value = "";
+          const historyItems = document.querySelectorAll('.history-item');
+          historyItems.forEach(item => {
+            if (parseInt(item.dataset.id) === chatId) {
+              item.classList.add('active');
+            } else {
+              item.classList.remove('active');
+            }
+          });
 
-        } catch (err) {
-          output.innerText = "Error: " + err.message;
+          if (window.innerWidth <= 900) {
+            sidebar.classList.remove('active');
+          }
+        };
+
+        request.onerror = (event) => {
+          console.error("Error loading chat:", event.target.error);
+        };
+      } catch (error) {
+        console.error("Error loading chat:", error);
+      }
+    }
+
+    function renderMessage(role, content) {
+      const messageGroup = document.createElement('div');
+      messageGroup.className = 'message-group';
+
+      const messageElement = document.createElement('div');
+      messageElement.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
+
+      const messageMeta = document.createElement('div');
+      messageMeta.className = `message-meta ${role === 'user' ? 'user-meta' : 'ai-meta'}`;
+
+      if (role === 'user') {
+        messageMeta.textContent = 'You';
+      } else {
+        messageMeta.innerHTML = `
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHJ4PSIxMCIgZmlsbD0iIzFjYzhlZSIvPjxwYXRoIGQ9Ik02IDEwTDkgMTNMMTQgOCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=" alt="WivX">
+          WivX AI
+        `;
+      }
+
+      const messageContent = document.createElement('div');
+      messageContent.className = 'message-content';
+      messageContent.textContent = content;
+
+      messageElement.appendChild(messageMeta);
+      messageElement.appendChild(messageContent);
+      messageGroup.appendChild(messageElement);
+
+      chatContainer.appendChild(messageGroup);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showEmptyState() {
+      emptyState.style.display = 'flex';
+    }
+
+    function hideEmptyState() {
+      emptyState.style.display = 'none';
+    }
+
+    async function initApp() {
+      try {
+        await initDB();
+
+        const chats = await getAllChats();
+        if (chats.length > 0) {
+
+          await loadChat(chats[0].id);
+        } else {
+
+          showEmptyState();
+        }
+
+        await renderChatHistory();
+
+      } catch (error) {
+        console.error("Error initializing app:", error);
+      }
+    }
+
+    let generator;
+    let isGeneratorReady = false;
+
+    async function initGenerator() {
+      try {
+        generator = await pipeline('text-generation', 'Xenova/distilgpt2', { quantized: true });
+        isGeneratorReady = true;
+        console.log("GPT-2 model loaded successfully");
+      } catch (error) {
+        console.error("Error loading GPT-2 model:", error);
+      }
+    }
+
+    async function sendMessage() {
+      if (!isGeneratorReady) {
+        alert("The model is still loading. Please wait a moment.");
+        return;
+      }
+
+      const userInput = inputField.value.trim();
+      if (!userInput) return;
+
+      inputField.value = '';
+
+      if (!currentChatId) {
+        try {
+          currentChatId = await createNewChat();
+          hideEmptyState();
+          await renderChatHistory();
+        } catch (error) {
+          console.error("Error creating new chat:", error);
+          return;
+        }
+      }
+
+      try {
+        await addMessage(currentChatId, 'user', userInput);
+        renderMessage('user', userInput);
+
+        if (currentChatTitle.textContent === "New Chat") {
+          const newTitle = userInput.length > 25 ? userInput.substring(0, 22) + '...' : userInput;
+          currentChatTitle.textContent = newTitle;
+          await updateChatTitle(currentChatId, newTitle);
+        }
+
+        await updateChatLastMessage(currentChatId, userInput);
+        await renderChatHistory();
+
+      } catch (error) {
+        console.error("Error adding user message:", error);
+        return;
+      }
+
+      const loadingMessage = document.createElement('div');
+      loadingMessage.className = 'message-group';
+      loadingMessage.innerHTML = `
+        <div class="message ai-message">
+          <div class="message-meta ai-meta">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHJ4PSIxMCIgZmlsbD0iIzFjYzhlZSIvPjxwYXRoIGQ9Ik02IDEwTDkgMTNMMTQgOCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=" alt="WivX">
+            WivX AI
+          </div>
+          <div class="message-content">
+            <div class="loading-indicator">
+              <span class="loading-dot"></span>
+              <span class="loading-dot"></span>
+              <span class="loading-dot"></span>
+            </div>
+          </div>
+        </div>
+      `;
+      chatContainer.appendChild(loadingMessage);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      let messages = await getChatMessages(currentChatId);
+      messages = messages.slice(-10); 
+
+      let context = "This is a conversation between User and WivX AI assistant.\n\n";
+      messages.forEach(msg => {
+        if (msg.role === 'user') {
+          context += `User: ${msg.content}\n\n`;
+        } else {
+          context += `AI: ${msg.content}\n\n`;
         }
       });
-    </script>
-  </body>
+
+      context += `User: ${userInput}\n\nAI:`;
+
+      try {
+        const result = await generator(context, {
+          max_new_tokens: 150,
+          temperature: 0.7,
+          top_k: 40,
+          repetition_penalty: 1.2,
+          stop: ["User:"]
+        });
+
+        const generatedText = result[0].generated_text;
+        const aiResponse = generatedText
+          .replace(context, '')
+          .split("User:")[0]
+          .trim();
+
+        chatContainer.removeChild(loadingMessage);
+
+        await addMessage(currentChatId, 'ai', aiResponse);
+
+        const messageGroup = document.createElement('div');
+        messageGroup.className = 'message-group';
+
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message ai-message';
+
+        const messageMeta = document.createElement('div');
+        messageMeta.className = 'message-meta ai-meta';
+        messageMeta.innerHTML = `
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHJ4PSIxMCIgZmlsbD0iIzFjYzhlZSIvPjxwYXRoIGQ9Ik02IDEwTDkgMTNMMTQgOCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=" alt="WivX">
+          WivX AI
+        `;
+
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+
+        messageElement.appendChild(messageMeta);
+        messageElement.appendChild(messageContent);
+        messageGroup.appendChild(messageElement);
+
+        chatContainer.appendChild(messageGroup);
+
+        let displayedText = '';
+        for (let i = 0; i < aiResponse.length; i++) {
+          displayedText += aiResponse[i];
+          messageContent.textContent = displayedText;
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+
+          const delay = Math.floor(Math.random() * 10) + 10; 
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+
+        await renderChatHistory();
+
+      } catch (error) {
+        console.error("Error generating AI response:", error);
+
+        chatContainer.removeChild(loadingMessage);
+
+        const errorMessage = "Sorry, I encountered an error while generating a response. Please try again.";
+        await addMessage(currentChatId, 'ai', errorMessage);
+        renderMessage('ai', errorMessage);
+      }
+    }
+
+    generateBtn.addEventListener('click', sendMessage);
+
+    inputField.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+
+      setTimeout(() => {
+        inputField.style.height = 'auto';
+        inputField.style.height = Math.min(inputField.scrollHeight, 150) + 'px';
+      }, 0);
+    });
+
+    newChatBtn.addEventListener('click', async () => {
+      try {
+        currentChatId = await createNewChat();
+        currentChatTitle.textContent = "New Chat";
+        hideEmptyState();
+        chatContainer.innerHTML = '';
+        await renderChatHistory();
+      } catch (error) {
+        console.error("Error creating new chat:", error);
+      }
+    });
+
+    startChatBtn.addEventListener('click', async () => {
+      try {
+        currentChatId = await createNewChat();
+        currentChatTitle.textContent = "New Chat";
+        hideEmptyState();
+        chatContainer.innerHTML = '';
+        await renderChatHistory();
+        inputField.focus();
+      } catch (error) {
+        console.error("Error creating new chat:", error);
+      }
+    });
+
+    clearHistoryBtn.addEventListener('click', async () => {
+      if (confirm("Are you sure you want to clear all chat history? This action cannot be undone.")) {
+        try {
+          await clearAllChats();
+          currentChatId = null;
+          currentChatTitle.textContent = "New Chat";
+          chatContainer.innerHTML = '';
+          showEmptyState();
+          await renderChatHistory();
+        } catch (error) {
+          console.error("Error clearing chat history:", error);
+        }
+      }
+    });
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+
+    initApp();
+    initGenerator();
+  </script>
+</body>
 </html>
